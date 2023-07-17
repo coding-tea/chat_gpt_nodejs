@@ -8,6 +8,9 @@ app.use(express.urlencoded({extended:false}));
 app.use(cors())
 
 app.post('/completions', async (req, res) => {
+
+    const message = 'générer un '+ req.body.model + ' avec les details suivant : ' + req.body.message;
+
     const options ={
         method : 'POST',
         headers : {
@@ -19,16 +22,20 @@ app.post('/completions', async (req, res) => {
             messages:[
                 {
                     role: "user", 
-                    content: req.body.message
-                }
+                    content: 'générer un '+ req.body.model + ' avec les details suivant : ' + req.body.message
+                },
+                {
+                    role: "user", 
+                    content: 'les information de docteur ' + JSON.stringify(req.body.doctor)
+                },
             ],
-            max_tokens :100,
         })
     }
     try{
         const responce = await fetch('https://api.openai.com/v1/chat/completions', options);
         const data = await responce.json();
-        res.send(data);
+        const result = data.choices[0].message.content;
+        res.send(result);
     }catch(error){
         res.status(400).json({
              success : false,
